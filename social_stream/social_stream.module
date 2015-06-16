@@ -201,8 +201,11 @@ function social_stream_field_formatter_view($entity_type, $entity, $field, $inst
 
   $feeds = array();
   foreach ($items as $item) {
-    $feeds[$item['service']] = $item['url'];
+    $feeds[$item['service']] = !isset($feeds[$item['service']]) ? array() : $feeds[$item['service']];
+    $feeds[$item['service']][] = $item['url'];
   }
+
+  dpm($feeds);
   $settings['feeds'] = $feeds;
 
   $element[0]['#markup'] = theme('social_stream', $settings);
@@ -248,16 +251,18 @@ function template_preprocess_social_stream(&$variables) {
   // Clean up feeds
 
   $feeds = array();
-  foreach ($variables['feeds'] as $service => $feed) {
-    if (strpos($feed, 'http') !== FALSE) {
-      $feed = explode('/', $feed);
-      $feed = $feed[count($feed)-1];
+  foreach ($variables['feeds'] as $service => $items) {
+    foreach ($items as $feed) {
+      if (strpos($feed, 'http') !== FALSE) {
+        $feed = explode('/', $feed);
+        $feed = $feed[count($feed)-1];
+      }
+      $feeds[$service] = !isset($feeds[$service]) ? array() : $feeds[$service];
+      $feeds[$service][] = $feed;
     }
-    $feeds[$service] = array('id' => $feed);
   }
-  if (!empty($feeds['twitter'])) {
-    $feeds['twitter']['url'] = url('rest/social-stream/twitter');
-  }
+  dpm($feeds);
+  
 
 
   // Setup settings
@@ -266,11 +271,19 @@ function template_preprocess_social_stream(&$variables) {
   $settings = array(
     'type' => 'wall',
     'limit' => $variables['limit'],
-    'feeds' => $feeds,
+    'feeds' => array(),
     'iconPath' => $image_path,
     'imagePath' => $image_path,
     'height' => $variables['height'],
   );
+
+  foreach($feeds as $service=>$feed) {
+    $settings['feeds'][$service] = array('id' => implode(',', $feed));
+  }
+  if (!empty($settings['feeds']['twitter'])) {
+    $settings['feeds']['twitter']['url'] = url('rest/social-stream/twitter');
+  }
+  dpm($settings);
 
   // Add library files  
   drupal_add_js($path . '/inc/js/jquery.plugins.js');
