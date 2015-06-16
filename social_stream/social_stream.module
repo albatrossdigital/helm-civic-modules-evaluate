@@ -262,8 +262,8 @@ function template_preprocess_social_stream(&$variables) {
         $feed = explode('/', $feed);
         $feed = $feed[count($feed)-1];
       }
-      if ($service == 'instagram') {
-        $feed = '!' . $feed;
+      if ($service == 'instagram' && strpos($feed, '#') === FALSE) {
+        $feed = '@' . $feed;
       }
       $feeds[$service] = !isset($feeds[$service]) ? array() : $feeds[$service];
       $feeds[$service][] = $feed;
@@ -293,7 +293,6 @@ function template_preprocess_social_stream(&$variables) {
     $settings['feeds']['instagram']['clientId'] = variable_get('social_stream_instagram_client_id', '');
     $settings['feeds']['instagram']['redirectUrl'] = variable_get('social_stream_instagram_redirect_url', '');
   }
-
 
   
 
