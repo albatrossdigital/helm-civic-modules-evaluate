@@ -91,6 +91,12 @@ function social_stream_settings($form, &$form_state) {
     '#title' => t('Redirect URL'),
     '#default_value' => variable_get('social_stream_instagram_redirect_url', $base_url),
   );
+  $form['instagram']['social_stream_instagram_access_token'] = array(
+    '#type' => 'textfield',
+    '#description' => t('The accessToken generated after entering the Client ID and Redirect URL, and visiting the Redirect URL.'),
+    '#title' => t('Access Token'),
+    '#default_value' => variable_get('social_stream_instagram_access_token', $base_url),
+  );
 
   return system_settings_form($form);
 }
@@ -205,7 +211,6 @@ function social_stream_field_formatter_view($entity_type, $entity, $field, $inst
     $feeds[$item['service']][] = $item['url'];
   }
 
-  dpm($feeds);
   $settings['feeds'] = $feeds;
 
   $element[0]['#markup'] = theme('social_stream', $settings);
@@ -257,13 +262,13 @@ function template_preprocess_social_stream(&$variables) {
         $feed = explode('/', $feed);
         $feed = $feed[count($feed)-1];
       }
+      if ($service == 'instagram') {
+        $feed = '!' . $feed;
+      }
       $feeds[$service] = !isset($feeds[$service]) ? array() : $feeds[$service];
       $feeds[$service][] = $feed;
     }
   }
-  dpm($feeds);
-  
-
 
   // Setup settings
 
@@ -283,7 +288,14 @@ function template_preprocess_social_stream(&$variables) {
   if (!empty($settings['feeds']['twitter'])) {
     $settings['feeds']['twitter']['url'] = url('rest/social-stream/twitter');
   }
-  dpm($settings);
+  if (!empty($settings['feeds']['instagram'])) {
+    $settings['feeds']['instagram']['accessToken'] = variable_get('social_stream_instagram_access_token', '');
+    $settings['feeds']['instagram']['clientId'] = variable_get('social_stream_instagram_client_id', '');
+    $settings['feeds']['instagram']['redirectUrl'] = variable_get('social_stream_instagram_redirect_url', '');
+  }
+
+
+  
 
   // Add library files  
   drupal_add_js($path . '/inc/js/jquery.plugins.js');
