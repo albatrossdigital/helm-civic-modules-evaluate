@@ -258,7 +258,7 @@ function template_preprocess_social_stream(&$variables) {
   $feeds = array();
   foreach ($variables['feeds'] as $service => $items) {
     foreach ($items as $feed) {
-      if (strpos($feed, 'http') !== FALSE) {
+      if (strpos($feed, 'http') !== FALSE && $service != 'rss') {
         $feed = explode('/', $feed);
         $feed = $feed[count($feed)-1];
       }
