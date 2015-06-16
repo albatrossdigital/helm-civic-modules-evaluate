@@ -263,7 +263,7 @@ function template_preprocess_social_stream(&$variables) {
         $feed = $feed[count($feed)-1];
       }
       if ($service == 'instagram' && strpos($feed, '#') === FALSE) {
-        $feed = '@' . $feed;
+        $feed = '!' . $feed;
       }
       $feeds[$service] = !isset($feeds[$service]) ? array() : $feeds[$service];
       $feeds[$service][] = $feed;
